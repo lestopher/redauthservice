@@ -2,7 +2,7 @@
 A proof-of-concept that separates authentication out into a microservice.
 
 ## Installing
-`go get github.com/lestopher/redauth`
+`go get github.com/lestopher/redauthservice`
 
 ## Running
 `redauth -local=":8000" -conf="/path/to/secure_config.yml"`

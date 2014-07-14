@@ -34,6 +34,6 @@ func CreatePassword(password string, stretches int) (string, error) {
 
 // CompareHashAndPassword is a wrapper for bcrypt's CompareHashAndPassword
 // function.
-func CompareHashAndPassword(password, crypted string) error {
-	return bcrypt.CompareHashAndPassword([]byte(password), []byte(crypted))
+func CompareHashAndPassword(crypted, plaintext string) error {
+	return bcrypt.CompareHashAndPassword([]byte(crypted), []byte(plaintext))
 }
