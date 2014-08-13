@@ -4,5 +4,5 @@ database: "red_development"
 pepper: "12345"
 # The secret for users from a legacy system
 old_pepper: "54321"
-# Amount of work needed to generate cryptographic hash; set to 1 when in test
+# Amount of work needed to generate cryptographic hash; set to 4 when in test
 stretches: 10

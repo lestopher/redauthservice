@@ -3,12 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/lestopher/redauthservice/redauth"
 	"net/http"
+
+	"github.com/lestopher/fancylogger"
+	"github.com/lestopher/redauthservice/redauth"
 )
 
 // AuthHandler verifies that the username and password in the params are correct
-func AuthHandler(session *Session) http.Handler {
+func AuthHandler(session *Session, l *fancylogger.FancyLogger) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		params := r.Form
@@ -21,11 +23,11 @@ func AuthHandler(session *Session) http.Handler {
 			params["password"] = []string{"[FILTERED]"}
 		}
 
-		INFO.Printf("%s - Parameters %v\n", "/authenticate", params)
+		l.Info.Printf("%s - Parameters %v\n", "/authenticate", params)
 
 		var user User
 		// Set up the collection we're going to be using
-		c := session.DB(secureConfig["database"]).C("users")
+		c := session.Collection("users")
 		err := c.Find(map[string]string{"username": params["username"][0]}).One(&user)
 
 		// We're going to pass json back to the client
@@ -33,16 +35,16 @@ func AuthHandler(session *Session) http.Handler {
 		rw.Header().Set("Content-Type", "application/json")
 
 		if err != nil {
-			ERROR.Fatalln(err)
+			l.Error.Fatalln(err)
 		}
 
 		passErr := redauth.CompareHashAndPassword(
 			user.EncryptedPassword, password+secureConfig["pepper"])
 
 		// TODO: Remove this when running for real
-		TRACE.Printf("User is: %v\n", user)
+		l.Trace.Printf("User is: %v\n", user)
 
-		// TODO: Cleanup the error handling here, there's a lot of things that
+		// TODO: Cleanup the l.Error handling here, there's a lot of things that
 		// could be DRY'd up
 		if passErr != nil {
 			rw.WriteHeader(http.StatusForbidden)
@@ -52,14 +54,14 @@ func AuthHandler(session *Session) http.Handler {
 			}); err != nil {
 
 				rw.WriteHeader(http.StatusInternalServerError)
-				ERROR.Println("Unable to encode json message", err)
+				l.Error.Println("Unable to encode json message", err)
 				return
 			}
 		} else {
 			rw.WriteHeader(http.StatusOK)
 			if err = enc.Encode(&SuccessMessage{Success: true}); err != nil {
 				rw.WriteHeader(http.StatusInternalServerError)
-				ERROR.Println("Unable to encode json message", err)
+				l.Error.Println("Unable to encode json message", err)
 				return
 			}
 		}
