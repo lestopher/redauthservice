@@ -10,8 +10,8 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/lestopher/fancylogger"
+	"gopkg.in/mgo.v2"
 	"gopkg.in/yaml.v1"
-	"labix.org/v2/mgo"
 )
 
 var (
@@ -49,8 +49,8 @@ type User struct {
 
 // SuccessMessage represents a json structure that tells us if we succeeded
 type SuccessMessage struct {
-	Success bool
-	Message string `json:",omitempty"`
+	Success bool   `json:"success"`
+	Message string `json:"message,omitempty"`
 }
 
 func main() {
